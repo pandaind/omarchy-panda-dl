@@ -622,12 +622,12 @@ Panel {
                     // Delete button
                     Rectangle {
                       width: Style.space(26); height: Style.space(26); radius: Style.space(5)
-                      color: rmH.hovered ? Qt.alpha(Color.error, 0.15) : "transparent"
-                      border.color: rmH.hovered ? Color.error : Qt.alpha(root.foreground, 0.2); border.width: 1
+                      color: rmH.hovered ? Qt.alpha(Color.accent, 0.15) : "transparent"
+                      border.color: rmH.hovered ? Color.accent : Qt.alpha(root.foreground, 0.2); border.width: 1
                       Text {
                         anchors.centerIn: parent; text: "✕"
-                        font.family: root.fontFamily; font.pixelSize: Style.font.caption
-                        color: rmH.hovered ? Color.error : root.foreground
+                        font.family: root.fontFamily; font.pixelSize: Style.font.body
+                        color: rmH.hovered ? Color.accent : root.foreground
                       }
                       HoverHandler { id: rmH }
                       TapHandler { onTapped: service.removeDownload(dlCard.task.id, false) }
