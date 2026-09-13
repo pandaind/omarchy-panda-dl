@@ -364,10 +364,10 @@ Panel {
           Column {
             width: parent.width
             spacing: Style.space(8)
-            visible: service.running && service.downloads && service.downloads.length > 0
 
             Repeater {
               model: {
+                if (!service.running) return []
                 var list = service.downloads || []
                 if (root.currentFilter === "active")
                   return list.filter(function(t) { return t.status === "downloading" })
