@@ -164,6 +164,7 @@ Item {
                      "curl -sL " + githubUrl + " -o /tmp/panda-dl.tmp && " +
                      "chmod +x /tmp/panda-dl.tmp && " +
                      "mv /tmp/panda-dl.tmp ~/.local/bin/panda-dl && " +
+                     "~/.local/bin/panda-dl install-desktop && " +
                      "~/.local/bin/panda-dl start"
 
     Quickshell.execDetached(["sh", "-c", root.binaryPath + " start || (" + installCmd + ")"])
@@ -177,6 +178,7 @@ Item {
     var installCmd = "curl -sL " + githubUrl + " -o /tmp/panda-dl.tmp && " +
                      "chmod +x /tmp/panda-dl.tmp && " +
                      "mv /tmp/panda-dl.tmp ~/.local/bin/panda-dl && " +
+                     "~/.local/bin/panda-dl install-desktop && " +
                      "pkill -f 'panda-dl daemon' || true; " +
                      "sleep 1 && ~/.local/bin/panda-dl start"
 
