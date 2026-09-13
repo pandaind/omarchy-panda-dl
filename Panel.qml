@@ -184,6 +184,41 @@ Panel {
             }
           }
 
+          // ══════════════════════════════════════════ UPDATE BANNER ══════════
+          Rectangle {
+            visible: service.updateAvailable
+            width: parent.width
+            height: Style.space(32)
+            radius: Style.space(4)
+            color: Qt.alpha(Color.accent, 0.15)
+            border.color: Color.accent; border.width: 1
+
+            RowLayout {
+              anchors.fill: parent; anchors.leftMargin: Style.space(12); anchors.rightMargin: Style.space(6)
+              Text {
+                Layout.fillWidth: true
+                text: "✨ Update available! (" + service.currentVersion + " ➔ " + service.latestVersion + ")"
+                font.family: root.fontFamily; font.pixelSize: Style.font.caption; font.weight: Font.Medium
+                color: root.foreground
+              }
+              Rectangle {
+                Layout.preferredWidth: updBtnTxt.implicitWidth + Style.space(16)
+                Layout.preferredHeight: Style.space(22)
+                radius: Style.space(4)
+                color: updHov.hovered ? Color.accent : "transparent"
+                border.color: Color.accent; border.width: 1
+                Text {
+                  id: updBtnTxt; anchors.centerIn: parent
+                  text: "Update Now"
+                  font.family: root.fontFamily; font.pixelSize: Style.font.caption; font.weight: Font.Bold
+                  color: updHov.hovered ? Color.menu.background : Color.accent
+                }
+                HoverHandler { id: updHov }
+                TapHandler { onTapped: service.updateBinary() }
+              }
+            }
+          }
+
           // ══════════════════════════════════════════ ADD FORM (COLLAPSIBLE) ═
           Rectangle {
             visible: root.showAddForm

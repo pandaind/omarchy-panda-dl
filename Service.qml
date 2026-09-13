@@ -24,6 +24,10 @@ Item {
     return localBin
   }
 
+  property string currentVersion: ""
+  property string latestVersion: ""
+  property bool updateAvailable: false
+
   signal statusUpdated()
 
   // Polling Timer
@@ -35,10 +39,51 @@ Item {
     onTriggered: root.refresh()
   }
 
+  // Update check timer (checks every 12 hours)
+  Timer {
+    interval: 12 * 60 * 60 * 1000
+    running: true
+    repeat: true
+    onTriggered: root.checkForUpdates()
+  }
+
   function refresh() {
     if (statusProcess.running) return
     statusProcess.command = [root.binaryPath, "status"]
     statusProcess.running = true
+  }
+
+  function checkForUpdates() {
+    if (!updateCheckProcess.running) {
+      updateCheckProcess.running = true
+    }
+  }
+
+  Process {
+    id: updateCheckProcess
+    // Strip 'v' from the latest tag so it matches rust 'panda-dl X.Y.Z' output
+    command: ["sh", "-c", "curr=$(" + root.binaryPath + " -V 2>/dev/null | awk '{print $2}'); latest=$(curl -s https://api.github.com/repos/pandaind/panda-dl/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"v?([^\"]+)\".*/\\1/'); echo \"$curr|$latest\""]
+    property string buffer: ""
+    stdout: SplitParser {
+      splitMarker: "\n"
+      onRead: function(line) {
+        updateCheckProcess.buffer += line
+      }
+    }
+    onExited: function(code) {
+      var parts = updateCheckProcess.buffer.trim().split("|")
+      if (parts.length === 2) {
+        root.currentVersion = parts[0]
+        root.latestVersion = parts[1]
+        // If currentVersion is empty, it's not installed. Don't show update.
+        if (root.currentVersion && root.latestVersion && root.currentVersion !== root.latestVersion) {
+          root.updateAvailable = true
+        } else {
+          root.updateAvailable = false
+        }
+      }
+      updateCheckProcess.buffer = ""
+    }
   }
 
   Process {
@@ -130,7 +175,25 @@ Item {
     Qt.callLater(function() { root.refresh() })
   }
 
+  function updateBinary() {
+    root.updateAvailable = false
+    var githubUrl = "https://github.com/pandaind/panda-dl/releases/latest/download/panda-dl"
+    var installCmd = "echo \"Updating Panda-DL backend...\"; " +
+                     "pkill -f 'panda-dl daemon' || true; " +
+                     "curl -sL " + githubUrl + " -o ~/.local/bin/panda-dl && " +
+                     "chmod +x ~/.local/bin/panda-dl && " +
+                     "~/.local/bin/panda-dl start && " +
+                     "echo \"\\nUpdate successful!\"; sleep 3"
+
+    Quickshell.execDetached(["sh", "-c", 
+      "alacritty -e sh -c '" + installCmd + "' || foot -e sh -c '" + installCmd + "'"
+    ])
+    root.running = true
+    Qt.callLater(function() { root.checkForUpdates(); root.refresh() })
+  }
+
   Component.onCompleted: {
     root.refresh()
+    root.checkForUpdates()
   }
 }
