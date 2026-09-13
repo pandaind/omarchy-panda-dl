@@ -27,6 +27,7 @@ Item {
   property string currentVersion: ""
   property string latestVersion: ""
   property bool updateAvailable: false
+  property bool isUpdating: false
 
   signal statusUpdated()
 
@@ -158,38 +159,32 @@ Item {
   }
 
   function startDaemon() {
-    // Attempt to start it; if it fails (doesn't exist), launch a terminal to download the release binary
     var githubUrl = "https://github.com/pandaind/panda-dl/releases/latest/download/panda-dl"
-    
-    var installCmd = "echo \"Installing Panda-DL backend...\"; " +
-                     "mkdir -p ~/.local/bin && " +
+    var installCmd = "mkdir -p ~/.local/bin && " +
                      "curl -sL " + githubUrl + " -o ~/.local/bin/panda-dl && " +
                      "chmod +x ~/.local/bin/panda-dl && " +
-                     "~/.local/bin/panda-dl start && " +
-                     "echo \"\\nSuccessfully installed and started!\"; sleep 3"
+                     "~/.local/bin/panda-dl start"
 
-    Quickshell.execDetached(["sh", "-c", 
-      root.binaryPath + " start || (xdg-terminal-exec sh -c '" + installCmd + "' || ghostty -e sh -c '" + installCmd + "')"
-    ])
+    Quickshell.execDetached(["sh", "-c", root.binaryPath + " start || (" + installCmd + ")"])
     root.running = true // optimistic
     Qt.callLater(function() { root.refresh() })
   }
 
   function updateBinary() {
-    root.updateAvailable = false
+    root.isUpdating = true
     var githubUrl = "https://github.com/pandaind/panda-dl/releases/latest/download/panda-dl"
-    var installCmd = "echo \"Updating Panda-DL backend...\"; " +
-                     "pkill -f 'panda-dl daemon' || true; " +
+    var installCmd = "pkill -f 'panda-dl daemon' || true; " +
                      "curl -sL " + githubUrl + " -o ~/.local/bin/panda-dl && " +
                      "chmod +x ~/.local/bin/panda-dl && " +
-                     "~/.local/bin/panda-dl start && " +
-                     "echo \"\\nUpdate successful!\"; sleep 3"
+                     "~/.local/bin/panda-dl start"
 
-    Quickshell.execDetached(["sh", "-c", 
-      "xdg-terminal-exec sh -c '" + installCmd + "' || ghostty -e sh -c '" + installCmd + "'"
-    ])
+    Quickshell.execDetached(["sh", "-c", installCmd])
     root.running = true
-    Qt.callLater(function() { root.checkForUpdates(); root.refresh() })
+    // Wait a few seconds for the download and startup to finish before re-checking version
+    Timer {
+      interval: 4000; running: true; repeat: false
+      onTriggered: { root.isUpdating = false; root.updateAvailable = false; root.checkForUpdates(); root.refresh() }
+    }
   }
 
   Component.onCompleted: {
