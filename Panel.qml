@@ -609,6 +609,8 @@ Panel {
                       width: Style.space(26); height: Style.space(26); radius: Style.space(5)
                       color: flH.hovered ? Qt.alpha(root.foreground, 0.08) : "transparent"
                       border.color: Qt.alpha(root.foreground, 0.2); border.width: 1
+                      enabled: dlCard.task.status === "completed"
+                      opacity: enabled ? 1.0 : 0.3
                       Text {
                         anchors.centerIn: parent; text: "󰉋"
                         font.family: root.fontFamily; font.pixelSize: Style.font.body; color: root.foreground
