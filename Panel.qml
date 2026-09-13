@@ -576,11 +576,11 @@ Panel {
                       visible: !dlCard.isDone
                       width: Style.space(26); height: Style.space(26); radius: Style.space(5)
                       color: prH.hovered ? Qt.alpha(Color.accent, 0.15) : "transparent"
-                      border.color: Qt.alpha(root.foreground, 0.2); border.width: 1
+                      border.color: prH.hovered ? Color.accent : Qt.alpha(root.foreground, 0.2); border.width: 1
                       Text {
                         anchors.centerIn: parent; font.family: root.fontFamily; font.pixelSize: Style.font.body
                         text: dlCard.isActive ? "⏸" : "▶"
-                        color: Color.accent
+                        color: prH.hovered ? Color.accent : root.foreground
                       }
                       HoverHandler { id: prH }
                       TapHandler {
@@ -594,11 +594,11 @@ Panel {
                     Rectangle {
                       visible: dlCard.isDone
                       width: Style.space(26); height: Style.space(26); radius: Style.space(5)
-                      color: ofH.hovered ? Qt.alpha(root.foreground, 0.08) : "transparent"
-                      border.color: Qt.alpha(root.foreground, 0.2); border.width: 1
+                      color: ofH.hovered ? Qt.alpha(Color.accent, 0.15) : "transparent"
+                      border.color: ofH.hovered ? Color.accent : Qt.alpha(root.foreground, 0.2); border.width: 1
                       Text {
                         anchors.centerIn: parent; text: "󰈔"
-                        font.family: root.fontFamily; font.pixelSize: Style.font.body; color: root.foreground
+                        font.family: root.fontFamily; font.pixelSize: Style.font.body; color: ofH.hovered ? Color.accent : root.foreground
                       }
                       HoverHandler { id: ofH }
                       TapHandler { onTapped: service.openFile(dlCard.task.id) }
@@ -607,13 +607,13 @@ Panel {
                     // Open folder
                     Rectangle {
                       width: Style.space(26); height: Style.space(26); radius: Style.space(5)
-                      color: flH.hovered ? Qt.alpha(root.foreground, 0.08) : "transparent"
-                      border.color: Qt.alpha(root.foreground, 0.2); border.width: 1
+                      color: flH.hovered ? Qt.alpha(Color.accent, 0.15) : "transparent"
+                      border.color: flH.hovered ? Color.accent : Qt.alpha(root.foreground, 0.2); border.width: 1
                       enabled: dlCard.task.status === "completed"
                       opacity: enabled ? 1.0 : 0.3
                       Text {
                         anchors.centerIn: parent; text: "󰉋"
-                        font.family: root.fontFamily; font.pixelSize: Style.font.body; color: root.foreground
+                        font.family: root.fontFamily; font.pixelSize: Style.font.body; color: flH.hovered ? Color.accent : root.foreground
                       }
                       HoverHandler { id: flH }
                       TapHandler { onTapped: service.openFolder(dlCard.task.id) }
@@ -622,12 +622,12 @@ Panel {
                     // Delete button
                     Rectangle {
                       width: Style.space(26); height: Style.space(26); radius: Style.space(5)
-                      color: rmH.hovered ? Qt.alpha(Color.error, 0.2) : "transparent"
-                      border.color: Qt.alpha(root.foreground, 0.2); border.width: 1
+                      color: rmH.hovered ? Qt.alpha(Color.error, 0.15) : "transparent"
+                      border.color: rmH.hovered ? Color.error : Qt.alpha(root.foreground, 0.2); border.width: 1
                       Text {
                         anchors.centerIn: parent; text: "✕"
                         font.family: root.fontFamily; font.pixelSize: Style.font.caption
-                        color: rmH.hovered ? Color.error : Qt.alpha(root.foreground, 0.5)
+                        color: rmH.hovered ? Color.error : root.foreground
                       }
                       HoverHandler { id: rmH }
                       TapHandler { onTapped: service.removeDownload(dlCard.task.id, false) }
