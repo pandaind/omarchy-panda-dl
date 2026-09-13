@@ -364,6 +364,7 @@ Panel {
           Column {
             width: parent.width
             spacing: Style.space(8)
+            visible: service.running && service.downloads && service.downloads.length > 0
 
             Repeater {
               model: {
@@ -618,7 +619,7 @@ Panel {
 
             // ── Empty state: Sleepy panda ────────────────────────────────────
             Rectangle {
-              visible: !service.downloads || service.downloads.length === 0
+              visible: !service.running || !service.downloads || service.downloads.length === 0
               width: parent.width; height: Style.space(160)
               radius: Style.cornerRadius; color: Qt.alpha(Color.menu.selectedBackground, 0.5)
               border.color: Qt.alpha(root.foreground, 0.1); border.width: 1
