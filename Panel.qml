@@ -447,9 +447,9 @@ Panel {
                       border.color: badgeColor(); border.width: 1
                       function badgeColor() {
                         if (dlCard.isActive)  return Color.accent
-                        if (dlCard.isDone)    return "#a6e3a1"
-                        if (dlCard.isPaused)  return "#f9e2af"
-                        if (dlCard.isError)   return "#f38ba8"
+                        if (dlCard.isDone)    return Color.success
+                        if (dlCard.isPaused)  return Color.warning
+                        if (dlCard.isError)   return Color.error
                         return Qt.alpha(root.foreground, 0.4)
                       }
                       Text {
@@ -491,7 +491,7 @@ Panel {
                             return sz > 0 ? modelData.downloaded / sz : 0
                           }
                           color: {
-                            if (partPct >= 0.99) return "#a6e3a1"                          // complete — bamboo green
+                            if (partPct >= 0.99) return Color.success                          // complete — bamboo green
                             if (partPct > 0.02)  return Color.accent                       // in-flight — accent
                             return Qt.alpha(root.foreground, 0.08)                         // pending
                           }
@@ -503,7 +503,7 @@ Panel {
                             gradient: Gradient {
                               orientation: Gradient.Horizontal
                               GradientStop { position: 0.0; color: "transparent" }
-                              GradientStop { position: shimmer.shimmerPos; color: Qt.alpha("#ffffff", 0.25) }
+                              GradientStop { position: shimmer.shimmerPos; color: Qt.alpha(root.foreground, 0.25) }
                               GradientStop { position: 1.0; color: "transparent" }
                             }
                           }
@@ -530,8 +530,8 @@ Panel {
                       radius: Style.space(3)
                       gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0.0; color: dlCard.isDone ? "#a6e3a1" : Color.accent }
-                        GradientStop { position: 1.0; color: dlCard.isDone ? "#94e2d5" : Qt.lighter(Color.accent, 1.2) }
+                        GradientStop { position: 0.0; color: dlCard.isDone ? Color.success : Color.accent }
+                        GradientStop { position: 1.0; color: dlCard.isDone ? Qt.lighter(Color.success, 1.2) : Qt.lighter(Color.accent, 1.2) }
                       }
                       Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                     }
@@ -580,7 +580,7 @@ Panel {
                       Text {
                         anchors.centerIn: parent; font.family: root.fontFamily; font.pixelSize: Style.font.body
                         text: dlCard.isActive ? "⏸" : "▶"
-                        color: dlCard.isActive ? Color.accent : "#a6e3a1"
+                        color: dlCard.isActive ? Color.accent : Color.success
                       }
                       HoverHandler { id: prH }
                       TapHandler {
@@ -622,12 +622,12 @@ Panel {
                     // Delete button
                     Rectangle {
                       width: Style.space(26); height: Style.space(26); radius: Style.space(5)
-                      color: rmH.hovered ? Qt.alpha("#f38ba8", 0.2) : "transparent"
+                      color: rmH.hovered ? Qt.alpha(Color.error, 0.2) : "transparent"
                       border.color: Qt.alpha(root.foreground, 0.2); border.width: 1
                       Text {
                         anchors.centerIn: parent; text: "✕"
                         font.family: root.fontFamily; font.pixelSize: Style.font.caption
-                        color: rmH.hovered ? "#f38ba8" : Qt.alpha(root.foreground, 0.5)
+                        color: rmH.hovered ? Color.error : Qt.alpha(root.foreground, 0.5)
                       }
                       HoverHandler { id: rmH }
                       TapHandler { onTapped: service.removeDownload(dlCard.task.id, false) }
