@@ -169,7 +169,7 @@ Item {
                      "echo \"\\nSuccessfully installed and started!\"; sleep 3"
 
     Quickshell.execDetached(["sh", "-c", 
-      root.binaryPath + " start || (alacritty -e sh -c '" + installCmd + "' || foot -e sh -c '" + installCmd + "')"
+      root.binaryPath + " start || (xdg-terminal-exec sh -c '" + installCmd + "' || ghostty -e sh -c '" + installCmd + "')"
     ])
     root.running = true // optimistic
     Qt.callLater(function() { root.refresh() })
@@ -186,7 +186,7 @@ Item {
                      "echo \"\\nUpdate successful!\"; sleep 3"
 
     Quickshell.execDetached(["sh", "-c", 
-      "alacritty -e sh -c '" + installCmd + "' || foot -e sh -c '" + installCmd + "'"
+      "xdg-terminal-exec sh -c '" + installCmd + "' || ghostty -e sh -c '" + installCmd + "'"
     ])
     root.running = true
     Qt.callLater(function() { root.checkForUpdates(); root.refresh() })
