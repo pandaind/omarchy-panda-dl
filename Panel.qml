@@ -449,7 +449,7 @@ Panel {
                         return Color.accent
                       }
                       
-                      color: Qt.alpha(badgeClr, 0.18)
+                      color: badgeClr
                       border.color: badgeClr; border.width: 1
                       
                       Text {
@@ -463,7 +463,7 @@ Panel {
                           return "UNKNOWN"
                         }
                         font.family: root.fontFamily; font.pixelSize: Style.font.caption - 1; font.bold: true
-                        color: parent.badgeClr
+                        color: Color.menu.background
                       }
                     }
                   }
