@@ -445,11 +445,8 @@ Panel {
                       radius: Style.space(4)
                       
                       readonly property color badgeClr: {
-                        if (dlCard.isActive)  return Color.accent
-                        if (dlCard.isDone)    return Color.success
-                        if (dlCard.isPaused)  return Color.warning
                         if (dlCard.isError)   return Color.error
-                        return Qt.alpha(root.foreground, 0.4)
+                        return Color.accent
                       }
                       
                       color: Qt.alpha(badgeClr, 0.18)
@@ -466,7 +463,7 @@ Panel {
                           return "UNKNOWN"
                         }
                         font.family: root.fontFamily; font.pixelSize: Style.font.caption - 1; font.bold: true
-                        color: root.foreground
+                        color: parent.badgeClr
                       }
                     }
                   }
@@ -494,7 +491,7 @@ Panel {
                             return sz > 0 ? modelData.downloaded / sz : 0
                           }
                           color: {
-                            if (partPct >= 0.99) return Color.success                          // complete — bamboo green
+                            if (partPct >= 0.99) return Color.accent                          // complete — bamboo green
                             if (partPct > 0.02)  return Color.accent                       // in-flight — accent
                             return Qt.alpha(root.foreground, 0.08)                         // pending
                           }
@@ -533,8 +530,8 @@ Panel {
                       radius: Style.space(3)
                       gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0.0; color: dlCard.isDone ? Color.success : Color.accent }
-                        GradientStop { position: 1.0; color: dlCard.isDone ? Qt.lighter(Color.success, 1.2) : Qt.lighter(Color.accent, 1.2) }
+                        GradientStop { position: 0.0; color: Color.accent }
+                        GradientStop { position: 1.0; color: Qt.lighter(Color.accent, 1.2) }
                       }
                       Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                     }
@@ -583,7 +580,7 @@ Panel {
                       Text {
                         anchors.centerIn: parent; font.family: root.fontFamily; font.pixelSize: Style.font.body
                         text: dlCard.isActive ? "⏸" : "▶"
-                        color: dlCard.isActive ? Color.accent : root.foreground
+                        color: Color.accent
                       }
                       HoverHandler { id: prH }
                       TapHandler {
