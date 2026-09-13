@@ -40,7 +40,7 @@ Item {
   // Smile stroke
   readonly property color clrSmile:  Qt.alpha(Color.foreground, 0.45)
   // Subtle face stroke for light mode visibility
-  readonly property color clrStroke: Qt.alpha(Color.foreground, 0.15)
+  readonly property color clrStroke: Qt.alpha(Color.foreground, 0.45)
 
   width: size
   height: size
