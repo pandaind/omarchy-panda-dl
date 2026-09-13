@@ -47,6 +47,12 @@ Designed natively for **Omarchy Linux** and **Hyprland**, it integrates seamless
 
 ---
 
+## Powered by `panda-dl`
+
+This widget acts as a seamless graphical frontend for the **[`panda-dl` CLI](https://github.com/pandaind/panda-dl)**. All core capabilities—such as high-speed multi-part downloading and BitTorrent handling—are powered entirely by this backend engine.
+
+---
+
 ## Installation
 
 Install directly with a single Omarchy command:
