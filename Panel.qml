@@ -466,7 +466,7 @@ Panel {
                           return "UNKNOWN"
                         }
                         font.family: root.fontFamily; font.pixelSize: Style.font.caption - 1; font.bold: true
-                        color: parent.badgeClr
+                        color: root.foreground
                       }
                     }
                   }
