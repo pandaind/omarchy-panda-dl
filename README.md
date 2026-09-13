@@ -1,7 +1,7 @@
 # Omarchy Panda Downloader
 
 <p align="center">
-  <img src="assets/preview.png" alt="Omarchy Panda Downloader Banner" width="640" />
+  <img src="preview.png" alt="Omarchy Panda Downloader Banner" width="640" />
 </p>
 
 <p align="center">
