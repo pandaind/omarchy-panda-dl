@@ -39,6 +39,8 @@ Item {
   readonly property color clrNose:   active ? Color.accent : Color.muted
   // Smile stroke
   readonly property color clrSmile:  Qt.alpha(Color.foreground, 0.45)
+  // Subtle face stroke for light mode visibility
+  readonly property color clrStroke: Qt.alpha(Color.foreground, 0.15)
 
   width: size
   height: size
@@ -51,6 +53,7 @@ Item {
   onClrBlushChanged:    canvas.requestPaint()
   onClrNoseChanged:     canvas.requestPaint()
   onClrSmileChanged:    canvas.requestPaint()
+  onClrStrokeChanged:   canvas.requestPaint()
   onActiveChanged:      canvas.requestPaint()
   onBlinkEyesChanged:   canvas.requestPaint()
 
@@ -118,6 +121,9 @@ Item {
       ctx.beginPath()
       ctx.arc(cx, cy, r, 0, Math.PI * 2)
       ctx.fill()
+      ctx.lineWidth = Math.max(1, r * 0.04)
+      ctx.strokeStyle = root.clrStroke
+      ctx.stroke()
 
       // ── Eye patches — fill() INSIDE save/restore so transforms apply ──
       ctx.fillStyle = root.clrDark
