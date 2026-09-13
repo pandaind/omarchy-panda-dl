@@ -22,6 +22,28 @@ Panel {
   property string addUriText: ""
   property int addParts: 16
   property string addDirText: ""
+  property int currentPage: 0
+  property int itemsPerPage: 3
+  property var filteredDownloads: {
+    if (!service.running) return []
+    var list = service.downloads || []
+    if (currentFilter === "active")
+      return list.filter(function(t) { return t.status === "downloading" })
+    if (currentFilter === "completed")
+      return list.filter(function(t) { return t.status === "completed" })
+    return list
+  }
+  
+  onFilteredDownloadsChanged: {
+    var maxPage = Math.max(0, Math.ceil(filteredDownloads.length / itemsPerPage) - 1)
+    if (currentPage > maxPage) {
+      currentPage = maxPage
+    }
+  }
+  
+  onCurrentFilterChanged: {
+      currentPage = 0
+  }
 
   // ─── Service ──────────────────────────────────────────────────────────────
   Service { id: service; settings: root.settings }
@@ -367,13 +389,9 @@ Panel {
 
             Repeater {
               model: {
-                if (!service.running) return []
-                var list = service.downloads || []
-                if (root.currentFilter === "active")
-                  return list.filter(function(t) { return t.status === "downloading" })
-                else if (root.currentFilter === "completed")
-                  return list.filter(function(t) { return t.status === "completed" })
-                return list
+                if (!root.filteredDownloads || root.filteredDownloads.length === 0) return []
+                var start = root.currentPage * root.itemsPerPage
+                return root.filteredDownloads.slice(start, start + root.itemsPerPage)
               }
 
               // ─── Per-download card ─────────────────────────────────────────
@@ -617,9 +635,41 @@ Panel {
               }
             }
 
+            // ── Pagination Controls ──────────────────────────────────────────
+            RowLayout {
+              width: parent.width
+              visible: root.filteredDownloads.length > root.itemsPerPage
+              
+              Item { Layout.fillWidth: true } // Spacer
+              
+              Rectangle {
+                width: Style.space(24); height: Style.space(24); radius: Style.space(4)
+                color: prevHov.hovered && root.currentPage > 0 ? Qt.alpha(root.foreground, 0.1) : "transparent"
+                Text { anchors.centerIn: parent; text: "◀"; color: root.currentPage > 0 ? root.foreground : root.dim; font.pixelSize: Style.font.caption }
+                HoverHandler { id: prevHov; enabled: root.currentPage > 0 }
+                TapHandler { onTapped: if (root.currentPage > 0) root.currentPage-- }
+              }
+              
+              Text {
+                text: "Page " + (root.currentPage + 1) + " of " + Math.max(1, Math.ceil(root.filteredDownloads.length / root.itemsPerPage))
+                font.family: root.fontFamily; font.pixelSize: Style.font.caption; color: root.dim
+              }
+              
+              Rectangle {
+                width: Style.space(24); height: Style.space(24); radius: Style.space(4)
+                property bool canNext: root.currentPage < Math.ceil(root.filteredDownloads.length / root.itemsPerPage) - 1
+                color: nextHov.hovered && canNext ? Qt.alpha(root.foreground, 0.1) : "transparent"
+                Text { anchors.centerIn: parent; text: "▶"; color: parent.canNext ? root.foreground : root.dim; font.pixelSize: Style.font.caption }
+                HoverHandler { id: nextHov; enabled: parent.canNext }
+                TapHandler { onTapped: if (parent.canNext) root.currentPage++ }
+              }
+              
+              Item { Layout.fillWidth: true } // Spacer
+            }
+
             // ── Empty state: Sleepy panda ────────────────────────────────────
             Rectangle {
-              visible: !service.running || !service.downloads || service.downloads.length === 0
+              visible: !service.running || root.filteredDownloads.length === 0
               width: parent.width; height: Style.space(160)
               radius: Style.cornerRadius; color: Qt.alpha(Color.menu.selectedBackground, 0.5)
               border.color: Qt.alpha(root.foreground, 0.1); border.width: 1
