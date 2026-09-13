@@ -161,8 +161,9 @@ Item {
   function startDaemon() {
     var githubUrl = "https://github.com/pandaind/panda-dl/releases/latest/download/panda-dl"
     var installCmd = "mkdir -p ~/.local/bin && " +
-                     "curl -sL " + githubUrl + " -o ~/.local/bin/panda-dl && " +
-                     "chmod +x ~/.local/bin/panda-dl && " +
+                     "curl -sL " + githubUrl + " -o /tmp/panda-dl.tmp && " +
+                     "chmod +x /tmp/panda-dl.tmp && " +
+                     "mv /tmp/panda-dl.tmp ~/.local/bin/panda-dl && " +
                      "~/.local/bin/panda-dl start"
 
     Quickshell.execDetached(["sh", "-c", root.binaryPath + " start || (" + installCmd + ")"])
@@ -173,10 +174,11 @@ Item {
   function updateBinary() {
     root.isUpdating = true
     var githubUrl = "https://github.com/pandaind/panda-dl/releases/latest/download/panda-dl"
-    var installCmd = "pkill -f 'panda-dl daemon' || true; " +
-                     "curl -sL " + githubUrl + " -o ~/.local/bin/panda-dl && " +
-                     "chmod +x ~/.local/bin/panda-dl && " +
-                     "~/.local/bin/panda-dl start"
+    var installCmd = "curl -sL " + githubUrl + " -o /tmp/panda-dl.tmp && " +
+                     "chmod +x /tmp/panda-dl.tmp && " +
+                     "mv /tmp/panda-dl.tmp ~/.local/bin/panda-dl && " +
+                     "pkill -f 'panda-dl daemon' || true; " +
+                     "sleep 1 && ~/.local/bin/panda-dl start"
 
     Quickshell.execDetached(["sh", "-c", installCmd])
     root.running = true
