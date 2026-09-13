@@ -258,7 +258,7 @@ Panel {
               Text {
                 text: "Add Download — URL, Magnet link, or .torrent path"
                 font.family: root.fontFamily; font.pixelSize: Style.font.caption; font.weight: Font.Bold
-                color: Color.accent
+                color: root.foreground
               }
 
               // URI field
@@ -443,15 +443,18 @@ Panel {
                       Layout.preferredHeight: Style.space(18)
                       Layout.preferredWidth: badge.implicitWidth + Style.space(8)
                       radius: Style.space(4)
-                      color: Qt.alpha(badgeColor(), 0.18)
-                      border.color: badgeColor(); border.width: 1
-                      function badgeColor() {
+                      
+                      readonly property color badgeClr: {
                         if (dlCard.isActive)  return Color.accent
                         if (dlCard.isDone)    return Color.success
                         if (dlCard.isPaused)  return Color.warning
                         if (dlCard.isError)   return Color.error
                         return Qt.alpha(root.foreground, 0.4)
                       }
+                      
+                      color: Qt.alpha(badgeClr, 0.18)
+                      border.color: badgeClr; border.width: 1
+                      
                       Text {
                         id: badge
                         anchors.centerIn: parent
@@ -463,7 +466,7 @@ Panel {
                           return "UNKNOWN"
                         }
                         font.family: root.fontFamily; font.pixelSize: Style.font.caption - 1; font.bold: true
-                        color: parent.badgeColor()
+                        color: parent.badgeClr
                       }
                     }
                   }
@@ -580,7 +583,7 @@ Panel {
                       Text {
                         anchors.centerIn: parent; font.family: root.fontFamily; font.pixelSize: Style.font.body
                         text: dlCard.isActive ? "⏸" : "▶"
-                        color: dlCard.isActive ? Color.accent : Color.success
+                        color: dlCard.isActive ? Color.accent : root.foreground
                       }
                       HoverHandler { id: prH }
                       TapHandler {
