@@ -555,7 +555,7 @@ Panel {
                       visible: dlCard.isActive && task.download_speed > 0
                       text: "⬇ " + Model.formatSpeed(task.download_speed)
                       font.family: root.fontFamily; font.pixelSize: Style.font.caption; font.bold: true
-                      color: Color.accent
+                      color: root.foreground
                     }
 
                     Text {
