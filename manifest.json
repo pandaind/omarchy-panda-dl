@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "panda-dl",
+  "name": "Panda Downloader",
+  "version": "1.0.0",
+  "author": "pandac",
+  "license": "MIT",
+  "description": "High speed multi-part downloader and BitTorrent/magnet client with auto-capture",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Panda Downloader",
+    "description": "Multi-part download manager and torrent client in Omarchy bar.",
+    "category": "Network",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
