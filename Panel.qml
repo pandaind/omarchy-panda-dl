@@ -51,7 +51,7 @@ Panel {
   // ─── Colors & Style ───────────────────────────────────────────────────────
   readonly property color foreground: bar ? bar.foreground : Color.foreground
   readonly property color accent: Color.accent
-  readonly property color dim: Qt.darker(foreground, 1.5)
+  readonly property color dim: Qt.alpha(foreground, 0.6)
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
 
   // ─── IPC ──────────────────────────────────────────────────────────────────
