@@ -98,6 +98,13 @@ Item {
       // Reduce radius multiplier so the larger ears fit entirely within the bounding box
       var r  = Math.min(width, height) / 2 * 0.78
 
+
+      // ── Face Outline (drawn behind ears) ──────────────────────────────
+      ctx.fillStyle = root.clrStroke
+      ctx.beginPath()
+      ctx.arc(cx, cy, r + Math.max(1.5, r * 0.04), 0, Math.PI * 2)
+      ctx.fill()
+
       // ── Ears (outer: dark, inner: accent-tinted) ──────────────────────
       ctx.fillStyle = root.clrDark
       ctx.beginPath()
@@ -121,9 +128,6 @@ Item {
       ctx.beginPath()
       ctx.arc(cx, cy, r, 0, Math.PI * 2)
       ctx.fill()
-      ctx.lineWidth = Math.max(1, r * 0.04)
-      ctx.strokeStyle = root.clrStroke
-      ctx.stroke()
 
       // ── Eye patches — fill() INSIDE save/restore so transforms apply ──
       ctx.fillStyle = root.clrDark
