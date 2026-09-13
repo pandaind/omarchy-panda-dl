@@ -50,7 +50,7 @@ Item {
 
   function refresh() {
     if (statusProcess.running) return
-    statusProcess.command = [root.binaryPath, "status"]
+    statusProcess.command = ["sh", "-c", root.binaryPath + " status"]
     statusProcess.running = true
   }
 
