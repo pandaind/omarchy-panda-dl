@@ -180,11 +180,14 @@ Item {
 
     Quickshell.execDetached(["sh", "-c", installCmd])
     root.running = true
-    // Wait a few seconds for the download and startup to finish before re-checking version
-    Timer {
-      interval: 4000; running: true; repeat: false
-      onTriggered: { root.isUpdating = false; root.updateAvailable = false; root.checkForUpdates(); root.refresh() }
-    }
+    updateDelayTimer.start()
+  }
+
+  // Wait a few seconds for the download and startup to finish before re-checking version
+  Timer {
+    id: updateDelayTimer
+    interval: 4000; running: false; repeat: false
+    onTriggered: { root.isUpdating = false; root.updateAvailable = false; root.checkForUpdates(); root.refresh() }
   }
 
   Component.onCompleted: {
