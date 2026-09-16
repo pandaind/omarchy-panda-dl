@@ -159,11 +159,14 @@ Item {
   }
 
   function startDaemon() {
-    var githubUrl = "https://github.com/pandaind/panda-dl/releases/latest/download/panda-dl"
+    var githubUrl = "https://github.com/pandaind/panda-dl/releases/download/v1.0.7/panda-dl"
+    var expectedSha = "f1b72aab4478d8e1fd20bc9ba5cc66256bfbba1a0a518c1d135b0da9f3f344c2"
     var installCmd = "mkdir -p ~/.local/bin && " +
-                     "curl -sL " + githubUrl + " -o /tmp/panda-dl.tmp && " +
-                     "chmod +x /tmp/panda-dl.tmp && " +
-                     "mv /tmp/panda-dl.tmp ~/.local/bin/panda-dl && " +
+                     "TMP_BIN=$(mktemp) && " +
+                     "curl -sL --max-time 60 " + githubUrl + " -o \"$TMP_BIN\" && " +
+                     "echo \"" + expectedSha + "  $TMP_BIN\" | sha256sum -c - && " +
+                     "chmod +x \"$TMP_BIN\" && " +
+                     "mv \"$TMP_BIN\" ~/.local/bin/panda-dl && " +
                      "~/.local/bin/panda-dl install-desktop && " +
                      "~/.local/bin/panda-dl start"
 
@@ -174,10 +177,14 @@ Item {
 
   function updateBinary() {
     root.isUpdating = true
-    var githubUrl = "https://github.com/pandaind/panda-dl/releases/latest/download/panda-dl"
-    var installCmd = "curl -sL " + githubUrl + " -o /tmp/panda-dl.tmp && " +
-                     "chmod +x /tmp/panda-dl.tmp && " +
-                     "mv /tmp/panda-dl.tmp ~/.local/bin/panda-dl && " +
+    var githubUrl = "https://github.com/pandaind/panda-dl/releases/download/v1.0.7/panda-dl"
+    var expectedSha = "f1b72aab4478d8e1fd20bc9ba5cc66256bfbba1a0a518c1d135b0da9f3f344c2"
+    var installCmd = "TMP_BIN=$(mktemp) && " +
+                     "curl -sL --max-time 60 " + githubUrl + " -o \"$TMP_BIN\" && " +
+                     "echo \"" + expectedSha + "  $TMP_BIN\" | sha256sum -c - && " +
+                     "chmod +x \"$TMP_BIN\" && " +
+                     "mkdir -p ~/.local/bin && " +
+                     "mv \"$TMP_BIN\" ~/.local/bin/panda-dl && " +
                      "~/.local/bin/panda-dl install-desktop && " +
                      "pkill -f 'panda-dl daemon' || true; " +
                      "sleep 1 && ~/.local/bin/panda-dl start"
