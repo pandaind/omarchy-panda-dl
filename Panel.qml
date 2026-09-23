@@ -206,41 +206,6 @@ Panel {
             }
           }
 
-          // ══════════════════════════════════════════ UPDATE BANNER ══════════
-          Rectangle {
-            visible: service.updateAvailable || service.isUpdating
-            width: parent.width
-            height: Style.space(32)
-            radius: Style.space(4)
-            color: Qt.alpha(Color.accent, 0.15)
-            border.color: Color.accent; border.width: 1
-
-            RowLayout {
-              anchors.fill: parent; anchors.leftMargin: Style.space(12); anchors.rightMargin: Style.space(6)
-              Text {
-                Layout.fillWidth: true
-                text: service.isUpdating ? "Downloading & restarting daemon in background..." : "✨ Update available! (" + service.currentVersion + " ➔ " + service.latestVersion + ")"
-                font.family: root.fontFamily; font.pixelSize: Style.font.caption; font.weight: Font.Medium
-                color: root.foreground
-              }
-              Rectangle {
-                Layout.preferredWidth: updBtnTxt.implicitWidth + Style.space(16)
-                Layout.preferredHeight: Style.space(22)
-                radius: Style.space(4)
-                color: service.isUpdating ? "transparent" : (updHov.hovered ? Color.accent : "transparent")
-                border.color: service.isUpdating ? Qt.alpha(root.foreground, 0.2) : Color.accent; border.width: 1
-                Text {
-                  id: updBtnTxt; anchors.centerIn: parent
-                  text: service.isUpdating ? "Updating..." : "Update Now"
-                  font.family: root.fontFamily; font.pixelSize: Style.font.caption; font.weight: Font.Bold
-                  color: service.isUpdating ? Qt.alpha(root.foreground, 0.5) : (updHov.hovered ? Color.menu.background : Color.accent)
-                }
-                HoverHandler { id: updHov; enabled: !service.isUpdating }
-                TapHandler { onTapped: { if (!service.isUpdating) service.updateBinary() } }
-              }
-            }
-          }
-
           // ══════════════════════════════════════════ ADD FORM (COLLAPSIBLE) ═
           Rectangle {
             visible: root.showAddForm

@@ -24,10 +24,10 @@ Item {
     return localBin
   }
 
-  property string currentVersion: ""
-  property string latestVersion: ""
-  property bool updateAvailable: false
-  property bool isUpdating: false
+  // Pinned panda-dl release. The plugin installs exactly this binary and
+  // verifies it against the checksum; there is no auto-update.
+  readonly property string pinnedUrl: "https://github.com/pandaind/panda-dl/releases/download/v1.0.8/panda-dl"
+  readonly property string pinnedSha256: "cbfe3aa93d03a4551ac493291ad38a02fa7765147ea8f2cc335d167e47636d5c"
 
   signal statusUpdated()
 
@@ -40,51 +40,10 @@ Item {
     onTriggered: root.refresh()
   }
 
-  // Update check timer (checks every 12 hours)
-  Timer {
-    interval: 12 * 60 * 60 * 1000
-    running: true
-    repeat: true
-    onTriggered: root.checkForUpdates()
-  }
-
   function refresh() {
     if (statusProcess.running) return
     statusProcess.command = ["sh", "-c", root.binaryPath + " status"]
     statusProcess.running = true
-  }
-
-  function checkForUpdates() {
-    if (!updateCheckProcess.running) {
-      updateCheckProcess.running = true
-    }
-  }
-
-  Process {
-    id: updateCheckProcess
-    // Strip 'v' from the latest tag so it matches rust 'panda-dl X.Y.Z' output
-    command: ["sh", "-c", "curr=$(" + root.binaryPath + " -V 2>/dev/null | awk '{print $2}'); latest=$(curl -s https://api.github.com/repos/pandaind/panda-dl/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"v?([^\"]+)\".*/\\1/'); echo \"$curr|$latest\""]
-    property string buffer: ""
-    stdout: SplitParser {
-      splitMarker: "\n"
-      onRead: function(line) {
-        updateCheckProcess.buffer += line
-      }
-    }
-    onExited: function(code) {
-      var parts = updateCheckProcess.buffer.trim().split("|")
-      if (parts.length === 2) {
-        root.currentVersion = parts[0]
-        root.latestVersion = parts[1]
-        // If currentVersion is empty, it's not installed. Don't show update.
-        if (root.currentVersion && root.latestVersion && root.currentVersion !== root.latestVersion) {
-          root.updateAvailable = true
-        } else {
-          root.updateAvailable = false
-        }
-      }
-      updateCheckProcess.buffer = ""
-    }
   }
 
   Process {
@@ -159,50 +118,24 @@ Item {
   }
 
   function startDaemon() {
-    var githubUrl = "https://github.com/pandaind/panda-dl/releases/download/v1.0.7/panda-dl"
-    var expectedSha = "f1b72aab4478d8e1fd20bc9ba5cc66256bfbba1a0a518c1d135b0da9f3f344c2"
+    // Install the pinned binary if it is missing or does not match the pinned
+    // checksum (the release's `-V` output can't be trusted to tell versions apart).
     var installCmd = "mkdir -p ~/.local/bin && " +
                      "TMP_BIN=$(mktemp) && " +
-                     "curl -sL --max-time 60 " + githubUrl + " -o \"$TMP_BIN\" && " +
-                     "echo \"" + expectedSha + "  $TMP_BIN\" | sha256sum -c - && " +
+                     "curl -sL --max-time 60 " + root.pinnedUrl + " -o \"$TMP_BIN\" && " +
+                     "echo \"" + root.pinnedSha256 + "  $TMP_BIN\" | sha256sum -c - && " +
                      "chmod +x \"$TMP_BIN\" && " +
+                     "(pkill -f 'panda-dl daemon' || true) && " +
                      "mv \"$TMP_BIN\" ~/.local/bin/panda-dl && " +
-                     "~/.local/bin/panda-dl install-desktop && " +
-                     "~/.local/bin/panda-dl start"
+                     "~/.local/bin/panda-dl install-desktop"
+    var checkCmd = "echo \"" + root.pinnedSha256 + "  " + root.binaryPath + "\" | sha256sum -c --status -"
 
-    Quickshell.execDetached(["sh", "-c", root.binaryPath + " start || (" + installCmd + ")"])
+    Quickshell.execDetached(["sh", "-c", "(" + checkCmd + " || (" + installCmd + ")) && " + root.binaryPath + " start"])
     root.running = true // optimistic
     Qt.callLater(function() { root.refresh() })
   }
 
-  function updateBinary() {
-    root.isUpdating = true
-    var githubUrl = "https://github.com/pandaind/panda-dl/releases/download/v1.0.7/panda-dl"
-    var expectedSha = "f1b72aab4478d8e1fd20bc9ba5cc66256bfbba1a0a518c1d135b0da9f3f344c2"
-    var installCmd = "TMP_BIN=$(mktemp) && " +
-                     "curl -sL --max-time 60 " + githubUrl + " -o \"$TMP_BIN\" && " +
-                     "echo \"" + expectedSha + "  $TMP_BIN\" | sha256sum -c - && " +
-                     "chmod +x \"$TMP_BIN\" && " +
-                     "mkdir -p ~/.local/bin && " +
-                     "mv \"$TMP_BIN\" ~/.local/bin/panda-dl && " +
-                     "~/.local/bin/panda-dl install-desktop && " +
-                     "pkill -f 'panda-dl daemon' || true; " +
-                     "sleep 1 && ~/.local/bin/panda-dl start"
-
-    Quickshell.execDetached(["sh", "-c", installCmd])
-    root.running = true
-    updateDelayTimer.start()
-  }
-
-  // Wait a few seconds for the download and startup to finish before re-checking version
-  Timer {
-    id: updateDelayTimer
-    interval: 4000; running: false; repeat: false
-    onTriggered: { root.isUpdating = false; root.updateAvailable = false; root.checkForUpdates(); root.refresh() }
-  }
-
   Component.onCompleted: {
     root.refresh()
-    root.checkForUpdates()
   }
 }
