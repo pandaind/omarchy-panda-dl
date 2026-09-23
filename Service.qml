@@ -118,21 +118,30 @@ Item {
   }
 
   function startDaemon() {
+    if (startProcess.running) return
     // Install the pinned binary if it is missing or does not match the pinned
     // checksum (the release's `-V` output can't be trusted to tell versions apart).
+    // The old daemon is stopped only after the new binary is in place; the
+    // "[p]" keeps pkill from matching this shell's own command line.
     var installCmd = "mkdir -p ~/.local/bin && " +
-                     "TMP_BIN=$(mktemp) && " +
-                     "curl -sL --max-time 60 " + root.pinnedUrl + " -o \"$TMP_BIN\" && " +
-                     "echo \"" + root.pinnedSha256 + "  $TMP_BIN\" | sha256sum -c - && " +
+                     "TMP_BIN=$(mktemp) && trap 'rm -f \"$TMP_BIN\"' EXIT && " +
+                     "curl -sfL --max-time 60 " + root.pinnedUrl + " -o \"$TMP_BIN\" && " +
+                     "echo \"" + root.pinnedSha256 + "  $TMP_BIN\" | sha256sum -c --status - && " +
                      "chmod +x \"$TMP_BIN\" && " +
-                     "(pkill -f 'panda-dl daemon' || true) && " +
-                     "mv \"$TMP_BIN\" ~/.local/bin/panda-dl && " +
-                     "~/.local/bin/panda-dl install-desktop"
+                     "mv -f \"$TMP_BIN\" " + root.binaryPath + " && " +
+                     "{ pkill -f '[p]anda-dl daemon'; sleep 1; " + root.binaryPath + " install-desktop; true; }"
     var checkCmd = "echo \"" + root.pinnedSha256 + "  " + root.binaryPath + "\" | sha256sum -c --status -"
 
-    Quickshell.execDetached(["sh", "-c", "(" + checkCmd + " || (" + installCmd + ")) && " + root.binaryPath + " start"])
-    root.running = true // optimistic
-    Qt.callLater(function() { root.refresh() })
+    startProcess.command = ["sh", "-c", "{ " + checkCmd + " || { " + installCmd + "; }; } && " + root.binaryPath + " start >/dev/null 2>&1"]
+    startProcess.running = true
+  }
+
+  Process {
+    id: startProcess
+    onExited: function(code) {
+      root.lastError = code === 0 ? "" : "Failed to install or start panda-dl"
+      root.refresh()
+    }
   }
 
   Component.onCompleted: {
